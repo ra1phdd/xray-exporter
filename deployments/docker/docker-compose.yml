@@ -1,0 +1,51 @@
+services:
+  xray:
+    container_name: xray
+    image: ghcr.io/xtls/xray-core:latest
+    restart: unless-stopped
+    ports:
+      - "443:443"
+    volumes:
+      - ./xray/config.json:/etc/xray/config.json:ro
+    command: [ "-config", "/etc/xray/config.json" ]
+
+  xray-exporter:
+    container_name: xray-exporter
+    restart: unless-stopped
+    build:
+      context: ./xray-exporter
+      dockerfile: Dockerfile
+    command:
+      - "--v2ray-endpoint=xray:54321"
+      - "--basic-auth-username=prometheus"
+      - "--basic-auth-password=change-me"
+    ports:
+      - "9550:9550"
+    volumes:
+      - ./xray-exporter:/app
+    depends_on:
+      - xray
+
+  prometheus:
+    image: bitnami/prometheus:latest
+    container_name: prometheus
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Moscow
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:rw
+    depends_on:
+      - xray-exporter
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Moscow
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana:/var/lib/grafana
+    depends_on:
+      - prometheus

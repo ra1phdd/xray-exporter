@@ -1,6 +1,6 @@
 <div align="center">
     <h1>XRay Exporter</h1>
-    <p>An exporter that collect XRay metrics over its <a href="https://xtls.github.io/en/config/stats.html">Stats API</a> and export them to Prometheus</p>
+    <p>Экспортер, который собирает метрики XRay через <a href="https://xtls.github.io/ru/config/stats.html">Stats API</a> и экспортирует их в Prometheus</p>
 
     <p>
         <img src="https://img.shields.io/badge/Go-1.25+-00ADD8?style=flat&logo=go&logoColor=white" alt="Go">
@@ -12,16 +12,16 @@
         <img src="https://github.com/a1phdd/xray-exporter/actions/workflows/tests.yml/badge.svg" alt="Tests">
     </p>
 
-    **English** | [Russian](README.ru.md)
+    [English](README.md) | **Russian**
 </div>
 
 ![](https://i.loli.net/2020/06/12/KzjOnyu93VEIPiW.png)
 
-## Quick Start
+## Быстрый старт
 
-### Binaries
+### Бинарные файлы
 
-The latest binaries are made available on GitHub [releases](https://github.com/ra1phdd/xray-exporter/releases) page:
+Актуальные бинарники доступны на странице [релизов](https://github.com/ra1phdd/xray-exporter/releases) GitHub:
 
 ```bash
 wget -O /tmp/xray-exporter https://github.com/ra1phdd/xray-exporter/releases/latest/download/xray-exporter_linux_amd64
@@ -29,9 +29,9 @@ mv /tmp/xray-exporter /usr/local/bin/xray-exporter
 chmod +x /usr/local/bin/xray-exporter
 ```
 
-### Docker (Recommended)
+### Docker (рекомендуется)
 
-Docker setup lives in [`deployments/docker`](deployments/docker):
+Конфигурация Docker находится в [`deployments/docker`](deployments/docker):
 
 ```bash
 docker build -f deployments/docker/Dockerfile -t xray-exporter:local .
@@ -39,19 +39,19 @@ docker build -f deployments/docker/Dockerfile -t xray-exporter:local .
 
 ### Grafana Dashboard
 
-A simple Grafana dashboard is also available [here](deployments/observability/grafana/dashboard.json). Please refer to the [Grafana docs](https://grafana.com/docs/grafana/latest/reference/export_import/#importing-a-dashboard) to get the steps of importing dashboards from JSON files.
+Простой дашборд Grafana также доступен [здесь](deployments/observability/grafana/dashboard.json). Импорт из JSON описан в [документации Grafana](https://grafana.com/docs/grafana/latest/reference/export_import/#importing-a-dashboard).
 
-## Tutorial
+## Руководство
 
-The project already contains deployment manifests in the [`deployments`](deployments) folder.
+В проекте уже есть манифесты для развёртывания в папке [`deployments`](deployments).
 
-1. Prepare XRay config:
-Use [`deployments/xray/config.json`](deployments/xray/config.json). It includes a basic configuration with statistics collection and API enabled on `127.0.0.1:54321` inside the XRay container
+1. Подготовьте конфиг XRay:
+Используйте [`deployments/xray/config.json`](deployments/xray/config.json). В нём включены сбор статистики и API на `127.0.0.1:54321` внутри контейнера XRay.
 
-2. Prepare Docker Compose workspace:
-The compose file is [`deployments/docker/docker-compose.yml`](deployments/docker/docker-compose.yml). It starts `xray`, `xray-exporter`, `prometheus`, and `grafana`.
+2. Подготовьте рабочую директорию Docker Compose:
+Файл compose: [`deployments/docker/docker-compose.yml`](deployments/docker/docker-compose.yml). Он запускает `xray`, `xray-exporter`, `prometheus` и `grafana`.
 
-Expected local structure near compose file:
+Ожидаемая локальная структура рядом с compose-файлом:
 ```plain
 deployments/docker/
   docker-compose.yml
@@ -60,42 +60,42 @@ deployments/docker/
   grafana/
 ```
 
-Example setup from repository root:
+Пример настройки из корня репозитория:
 ```bash
 mkdir -p deployments/docker/xray deployments/docker/prometheus deployments/docker/grafana
 cp deployments/xray/config.json deployments/docker/xray/config.json
 cp deployments/observability/prometheus/prometheus.yml deployments/docker/prometheus/prometheus.yml
 ```
 
-3. Start stack:
+3. Запустите стек:
 ```bash
 cd deployments/docker
 docker compose up -d
 ```
 
-4. Verify exporter:
-- Open `http://localhost:9550/` for home page.
-- Open `http://localhost:9550/scrape` for XRay metrics.
-- Basic Auth in compose defaults to:
+4. Проверьте экспортёр:
+- Откройте `http://localhost:9550/` для главной страницы.
+- Откройте `http://localhost:9550/scrape` для метрик XRay.
+- Basic Auth в compose по умолчанию:
 `username=prometheus`, `password=change-me`.
 
-If scrape is successful, response includes:
+Если scrape успешен, в ответе будет:
 ```plain
 # HELP xray_up Indicate scrape succeeded or not
 # TYPE xray_up gauge
 xray_up 1
 ```
 
-5. Verify observability:
-- Prometheus config comes from [`deployments/observability/prometheus/prometheus.yml`](deployments/observability/prometheus/prometheus.yml).
-- Grafana is available on `http://localhost:3000`.
-- Dashboard JSON is [`deployments/observability/grafana/dashboard.json`](deployments/observability/grafana/dashboard.json).
+5. Проверьте observability-стек:
+- Конфиг Prometheus берётся из [`deployments/observability/prometheus/prometheus.yml`](deployments/observability/prometheus/prometheus.yml).
+- Grafana доступна по адресу `http://localhost:3000`.
+- JSON дашборда: [`deployments/observability/grafana/dashboard.json`](deployments/observability/grafana/dashboard.json).
 
-If `xray_up` is missing or equals `0`, check logs of `xray` and `xray-exporter` containers.
+Если `xray_up` отсутствует или равен `0`, проверьте логи контейнеров `xray` и `xray-exporter`.
 
-## Runtime & Traffic Metrics
+## Runtime и Traffic метрики
 
-The exporter doesn't retain the original metric names from XRay intentionally:
+Экспортёр намеренно не сохраняет исходные имена метрик XRay:
 
 | Runtime Metric   | Exposed Metric                    |
 |:-----------------|:----------------------------------|
@@ -106,7 +106,7 @@ The exporter doesn't retain the original metric names from XRay intentionally:
 | `sys`            | `xray_memstats_sys_bytes`         |
 | `mallocs`        | `xray_memstats_mallocs_total`     |
 | `frees`          | `xray_memstats_frees_total`       |
-| `live_objects`   | Removed. See the appendix below.  |
+| `live_objects`   | Удалено. См. примечание ниже.     |
 | `num_gc`         | `xray_memstats_num_gc`            |
 | `pause_total_ns` | `xray_memstats_pause_total_ns`    |
 
@@ -120,12 +120,12 @@ The exporter doesn't retain the original metric names from XRay intentionally:
 | `user>>>user-email>>>traffic>>>downlink`   | `xray_traffic_downlink_bytes_total{dimension="user",target="user-email"}`   |
 | ...                                        | ...                                                                         |
 
-- The value of `live_objects` can be calculated by `memstats_mallocs_total - memstats_frees_total`.
+- Значение `live_objects` можно вычислить как `memstats_mallocs_total - memstats_frees_total`.
 
-## 🤝 Contribute & Roadmap
+## 🤝 Участие и roadmap
 
-PRs welcome! The codebase is intentionally small and readable.
+Pull request'ы приветствуются. Кодовая база намеренно небольшая и читаемая.
 
-See our [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Подробности смотрите в [CONTRIBUTING.md](CONTRIBUTING.md).
 
-Developer group building, join after your first merged PR!
+Собираем группу разработчиков, присоединяйтесь после первого влитого PR!
