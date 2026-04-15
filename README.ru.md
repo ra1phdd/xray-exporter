@@ -1,18 +1,17 @@
 <div align="center">
-    <h1>XRay Exporter</h1>
-    <p>Экспортер, который собирает метрики XRay через <a href="https://xtls.github.io/ru/config/stats.html">Stats API</a> и экспортирует их в Prometheus</p>
+<h1>XRay Exporter</h1>
+<p>Экспортер, который собирает метрики XRay через <a href="https://xtls.github.io/ru/config/stats.html">Stats API</a> и экспортирует их в Prometheus</p>
 
-    <p>
-        <img src="https://img.shields.io/badge/Go-1.25+-00ADD8?style=flat&logo=go&logoColor=white" alt="Go">
-        <img src="https://goreportcard.com/badge/github.com/ra1phdd/xray-exporter" alt="Go report">
-        <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
-        <br>
-        <img src="https://app.travis-ci.com/ra1phdd/xray-exporter.svg?branch=master" alt="Build Status">
-        <img src="https://coveralls.io/repos/github.com/ra1phdd/xray-exporter/badge.svg?branch=master" alt="Coverage">
-        <img src="https://github.com/a1phdd/xray-exporter/actions/workflows/tests.yml/badge.svg" alt="Tests">
-    </p>
+<p>
+    <img src="https://img.shields.io/badge/Go-1.25+-00ADD8?style=flat&logo=go&logoColor=white" alt="Go">
+    <img src="https://goreportcard.com/badge/github.com/ra1phdd/xray-exporter" alt="Go report">
+    <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
+    <br>
+    <img src="https://app.travis-ci.com/ra1phdd/xray-exporter.svg?branch=master" alt="Build Status">
+    <img src="https://coveralls.io/repos/github.com/ra1phdd/xray-exporter/badge.svg?branch=master" alt="Coverage">
+</p>
 
-    [English](README.md) | **Russian**
+[English](README.md) | **Russian**
 </div>
 
 ![](https://i.loli.net/2020/06/12/KzjOnyu93VEIPiW.png)
