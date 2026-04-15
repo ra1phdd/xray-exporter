@@ -16,8 +16,8 @@ var opts struct {
 	MetricsPath            string `short:"m" long:"metrics-path" description:"Metrics path" value-name:"PATH" default:"/scrape"`
 	V2RayEndpoint          string `short:"e" long:"v2ray-endpoint" description:"V2Ray API endpoint" value-name:"HOST:PORT" default:"127.0.0.1:8080"`
 	ScrapeTimeoutInSeconds int64  `short:"t" long:"scrape-timeout" description:"The timeout in seconds for every individual scrape" value-name:"N" default:"3"`
-	BasicAuthUsername      string `short:"bau" long:"basic-auth-username" description:"Username for HTTP Basic Auth protection"`
-	BasicAuthPassword      string `short:"bap" long:"basic-auth-password" description:"Password for HTTP Basic Auth protection"`
+	BasicAuthUsername      string `short:"u" long:"basic-auth-username" description:"Username for HTTP Basic Auth protection"`
+	BasicAuthPassword      string `short:"p" long:"basic-auth-password" description:"Password for HTTP Basic Auth protection"`
 	Version                bool   `short:"v" long:"version" description:"Display the version and exit"`
 }
 
@@ -50,11 +50,11 @@ func basicAuthMiddleware(next http.Handler) http.Handler {
 func main() {
 	var err error
 	if _, err = flags.Parse(&opts); err != nil {
+		fmt.Println(err)
 		os.Exit(0)
 	}
 
 	fmt.Printf("V2Ray Exporter %v-%v (built %v)\n", buildVersion, buildCommit, buildDate)
-
 	if opts.Version {
 		os.Exit(0)
 	}
@@ -62,6 +62,7 @@ func main() {
 	scrapeTimeout := time.Duration(opts.ScrapeTimeoutInSeconds) * time.Second
 	exporter, err = NewExporter(opts.V2RayEndpoint, scrapeTimeout)
 	if err != nil {
+		fmt.Println(err)
 		os.Exit(1)
 	}
 
