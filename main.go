@@ -16,7 +16,9 @@ var opts struct {
 	MetricsPath            string `short:"m" long:"metrics-path" description:"Metrics path" value-name:"PATH" default:"/scrape"`
 	V2RayEndpoint          string `short:"e" long:"v2ray-endpoint" description:"V2Ray API endpoint" value-name:"HOST:PORT" default:"127.0.0.1:8080"`
 	ScrapeTimeoutInSeconds int64  `short:"t" long:"scrape-timeout" description:"The timeout in seconds for every individual scrape" value-name:"N" default:"3"`
-	Version                bool   `long:"version" description:"Display the version and exit"`
+	BasicAuthUsername      string `short:"bau" long:"basic-auth-username" description:"Username for HTTP Basic Auth protection"`
+	BasicAuthPassword      string `short:"bap" long:"basic-auth-password" description:"Password for HTTP Basic Auth protection"`
+	Version                bool   `short:"v" long:"version" description:"Display the version and exit"`
 }
 
 var (
@@ -31,6 +33,18 @@ func scrapeHandler(w http.ResponseWriter, r *http.Request) {
 	promhttp.HandlerFor(
 		exporter.registry, promhttp.HandlerOpts{ErrorHandling: promhttp.ContinueOnError},
 	).ServeHTTP(w, r)
+}
+
+func basicAuthMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		username, password, ok := r.BasicAuth()
+		if !ok || username != opts.BasicAuthUsername || password != opts.BasicAuthPassword {
+			w.Header().Set("WWW-Authenticate", `Basic realm="v2ray-exporter"`)
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }
 
 func main() {
@@ -51,9 +65,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	http.Handle("/metrics", promhttp.Handler())
-	http.HandleFunc(opts.MetricsPath, scrapeHandler)
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	mux := http.NewServeMux()
+	mux.Handle("/metrics", promhttp.Handler())
+	mux.HandleFunc(opts.MetricsPath, scrapeHandler)
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		_, err := w.Write([]byte(`<html>
 <head><title>V2Ray Exporter</title></head>
 <body>
@@ -68,8 +83,17 @@ func main() {
 		}
 	})
 
+	var handler http.Handler = mux
+	authEnabled := opts.BasicAuthUsername != "" || opts.BasicAuthPassword != ""
+	if authEnabled {
+		handler = basicAuthMiddleware(handler)
+	}
+
 	logrus.Infof("Server is ready to handle incoming scrape requests.")
-	logrus.Fatal(http.ListenAndServe(opts.Listen, nil))
+	if authEnabled {
+		logrus.Info("HTTP Basic Auth is enabled")
+	}
+	logrus.Fatal(http.ListenAndServe(opts.Listen, handler))
 
 	defer exporter.conn.Close()
 }

@@ -149,6 +149,15 @@ v2ray-exporter --v2ray-endpoint "127.0.0.1:54321"
 docker run --rm -d wi1dcard/v2ray-exporter:master --v2ray-endpoint "127.0.0.1:54321"
 ```
 
+To protect all HTTP endpoints (`/`, `/metrics`, and `/scrape`) with Basic Auth, set both options:
+
+```bash
+v2ray-exporter \
+  --v2ray-endpoint "127.0.0.1:54321" \
+  --basic-auth-username "prometheus" \
+  --basic-auth-password "change-me"
+```
+
 The logs signifies that the exporter started to listening on the default address (`:9550`).
 
 ```plain
@@ -185,9 +194,14 @@ global:
 scrape_configs:
   - job_name: v2ray
     metrics_path: /scrape
+    basic_auth:
+      username: prometheus
+      password: change-me
     static_configs:
       - targets: [IP:9550]
 ```
+
+`--basic-auth-username` and `--basic-auth-password` are optional. Basic Auth is enabled when at least one of them is provided.
 
 To learn more about Prometheus, please visit the [official docs][prometheus-docs].
 
